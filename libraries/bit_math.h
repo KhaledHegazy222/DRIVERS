@@ -9,8 +9,9 @@
 	#define set_bit(port,bit) (port|=(1<<bit))
 	#define clear_bit(port,bit) (port&=~(1<<bit))
 	#define toggle_bit(port,bit) (port^=(1<<bit))
-	#define assign_port(port,val) (port=val)
 	#define get_bit(port,bit) ((port&(1<<bit))!=0)
+	//#define get_bit(port,bit) ((port >> bit) & 1)
+	
 
 
 #endif 

@@ -55,15 +55,31 @@
 
 
 
+typedef enum{
+	NO_PARITY ,
+	EVEN_PARITY ,
+	ODD_PARITY ,
+}PARITY_BIT;
+
+typedef enum{
+	BIT_5 ,
+	BIT_6 ,
+	BIT_7 ,
+	BIT_8 
+}CHAR_SIZE;
 
 
 // =================================================> Functions <=================================================
 
 
 	void UART_Init(u16 baud);
-	void UART_Transmit(u8 data);
-	u8 UART_Recieve(void);
- 
+	
+
+	void UART_SendChar(u8 data);
+	void UART_SendTxt(u8* data);
+
+	u8 UART_RecieveChar(void);
+	u8 * UART_RecieveTxt(void);
  
  
 #endif

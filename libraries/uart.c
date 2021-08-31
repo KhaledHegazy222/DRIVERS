@@ -11,11 +11,11 @@
 #endif
  
 #include "uart.h"
+#include "std_types.h"
 
 
 
-
-void UART_Init(u16 baud){
+void UART_Init(   u16 baud){
 
 
   /* Set baud rate */
@@ -28,7 +28,9 @@ void UART_Init(u16 baud){
 
 
 }
-void UART_Transmit(u8 data){
+
+
+void UART_SendChar(u8 data){
 	
 
 	/* Wait for empty transmit buffer */
@@ -38,8 +40,18 @@ void UART_Transmit(u8 data){
 	UDR_reg = data;
 }
 
+void UART_SendTxt(u8* data){
+	u8 i = 0;
+	do{
+		UART_SendChar(data[i]);
+	}
+	while(data[i++]);
 
-u8 UART_Recieve(void){
+}
+
+
+
+u8 UART_RecieveChar(void){
 
 	/* Wait for data to be received */
 	while ( !(UCSRA_reg & (1<<UCSRA_RXC)) )
@@ -49,6 +61,20 @@ u8 UART_Recieve(void){
 
 }
 
+
+
+
+u8 * UART_RecieveTxt(void){
+	static u8 ret[20];
+	u8 i = 0;
+	do{
+		ret[i] = UART_RecieveChar();
+	}
+	while(ret[i++]);
+
+	return ret;
+
+}
 
 
 
