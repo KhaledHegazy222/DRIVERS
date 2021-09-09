@@ -1,113 +1,164 @@
-#include "ext_int.h"
-#include "bit_math.h"
-#include <avr/interrupt.h>
+#include "..\..\Services\bit_math.h"
+#include "..\..\Services\std_types.h"
 
+#include "..\DIO\DIO_interface.h"
+#include "..\GIE\GIE_interface.h"
 
- void (*fun_0)(void);
- void (*fun_1)(void);
- void (*fun_2)(void);
- 
- 
- ISR(INT0_vect){
-	 fun_0();
- }
- 
- ISR(INT1_vect){
-	 fun_1();
- }
- 
- ISR(INT2_vect){
-	 fun_2();
- }
- 
+#include "EXT_INT_interface.h"
+#include "EXT_INT_config.h"
+#include "EXT_INT_private.h"
 
 
 
 
-void EXT_EnableExtInt(EXT_INT ext_int , TRIGGERING_CONDITION condition , void (*func)(void)){
-	switch(ext_int){
-		case EXT_INT_0 :
-			fun_0 = func;
-			set_bit(GICR_reg,GICR_INT0); // Enable External Interrupt INT0
-			if(condition == LOW_LEVEL){
-				
-				clear_bit(MCUCR_reg,MCUCR_ISC00);
-				clear_bit(MCUCR_reg,MCUCR_ISC01);
-			}
-			else if(condition == ON_CHANGE){
-				
-				set_bit(MCUCR_reg,MCUCR_ISC00);
-				clear_bit(MCUCR_reg,MCUCR_ISC01);
-			}
-			else if(condition == FALLIN_EDGE){
-				
-				clear_bit(MCUCR_reg,MCUCR_ISC00);
-				set_bit(MCUCR_reg,MCUCR_ISC01);
-			}
-			else if(condition == RISIN_EDGE){
-				
-				set_bit(MCUCR_reg,MCUCR_ISC00);
-				set_bit(MCUCR_reg,MCUCR_ISC01);
-			}
-			
-			break;
-		case EXT_INT_1 :
-		
-			fun_1 = func;
-			set_bit(GICR_reg,GICR_INT1); // Enable External Interrupt INT1
-			if(condition == LOW_LEVEL){
-				
-				clear_bit(MCUCR_reg,MCUCR_ISC10);
-				clear_bit(MCUCR_reg,MCUCR_ISC11);
-			}
-			else if(condition == ON_CHANGE){
-				
-				set_bit(MCUCR_reg,MCUCR_ISC10);
-				clear_bit(MCUCR_reg,MCUCR_ISC11);
-			}
-			else if(condition == FALLIN_EDGE){
-				
-				clear_bit(MCUCR_reg,MCUCR_ISC10);
-				set_bit(MCUCR_reg,MCUCR_ISC11);
-			}
-			else if(condition == RISIN_EDGE){
-				
-				set_bit(MCUCR_reg,MCUCR_ISC10);
-				set_bit(MCUCR_reg,MCUCR_ISC11);
-			}
-			
-			break;
-		case EXT_INT_2 :
-			fun_2 = func;
-			set_bit(GICR_reg,GICR_INT2); // Enable External Interrupt INT2
-			if(condition == FALLIN_EDGE){
-						clear_bit(MCUCSR_reg,MCUCSR_ISC2);
-			}
-			else if(condition == RISIN_EDGE){
-						set_bit(MCUCSR_reg,MCUCSR_ISC2);
+void EXT_INT_voidInit(){
 
-			}
-	}
+    #ifdef EXT_INT_u8_ENABLE_INT0
+
+        #if EXT_INT_u8_INT0_ISC == EXT_INT_u8_LOW_LEVEL
+    
+            clear_bit(MCUCR,ISC00);
+            clear_bit(MCUCR,ISC01);    
+
+        #endif
+        #if EXT_INT_u8_INT0_ISC == EXT_INT_u8_LOGICAL_CHANGE
+            
+            set_bit(MCUCR,ISC00);
+            clear_bit(MCUCR,ISC01);  
+
+        #endif
+        #if EXT_INT_u8_INT0_ISC == EXT_INT_u8_FALLING_EDGE
+        
+            clear_bit(MCUCR,ISC00);
+            set_bit(MCUCR,ISC01);  
+
+        #endif
+        #if EXT_INT_u8_INT0_ISC == EXT_INT_u8_RISING_EDGE  
+
+            set_bit(MCUCR,ISC00);
+            set_bit(MCUCR,ISC01); 
+
+        #endif
+
+        set_bit(GICR,INT0);
+
+    #endif
+
+
+
+
+    #ifdef EXT_INT_u8_ENABLE_INT1
+
+        #if EXT_INT_u8_INT1_ISC == EXT_INT_u8_LOW_LEVEL
+        
+            clear_bit(MCUCR,ISC10);
+            clear_bit(MCUCR,ISC11);
+
+        #endif  
+        #if EXT_INT_u8_INT1_ISC == EXT_INT_u8_LOGICAL_CHANGE
+    
+            set_bit(MCUCR,ISC10);
+            clear_bit(MCUCR,ISC11);
+
+        #endif
+        #if EXT_INT_u8_INT1_ISC == EXT_INT_u8_FALLING_EDGE
+    
+            clear_bit(MCUCR,ISC10);
+            set_bit(MCUCR,ISC11);
+
+        #endif
+        #if EXT_INT_u8_INT1_ISC == EXT_INT_u8_RISING_EDGE
+    
+            set_bit(MCUCR,ISC10);
+            set_bit(MCUCR,ISC11);
+
+        #endif
+
+
+        set_bit(GICR,INT1);
+        
+    #endif
+
+
+
+    #ifdef EXT_INT_u8_ENABLE_INT2
+
+        #if EXT_INT_u8_INT2_ISC == EXT_INT_u8_FALLING_EDGE
+
+            clear_bit(MCUCSR,ISC2);
+
+        #endif
+        #if EXT_INT_u8_INT2_ISC == EXT_INT_u8_RISING_EDGE
+
+            set_bit(MCUCSR,ISC2);
+
+        #endif
+
+        set_bit(GICR,INT2);
+        
+    #endif
+}
+
+
+void EXT_INT_voidEnable(u8 Copy_u8_Line){
+    switch (Copy_u8_Line){
+        case EXT_INT_u8_INT0 :
+            set_bit(GICR,INT0); 
+            break;
+        case EXT_INT_u8_INT1 :
+            set_bit(GICR,INT1); 
+            break;
+        case EXT_INT_u8_INT2 :
+            set_bit(GICR,INT2); 
+            break;
+    }
+
+}
+void EXT_INT_voidDisable(u8 Copy_u8_Line){
+    switch (Copy_u8_Line){
+        case EXT_INT_u8_INT0 :
+            clear_bit(GICR,INT0); 
+            break;
+        case EXT_INT_u8_INT1 :
+            clear_bit(GICR,INT1); 
+            break;
+        case EXT_INT_u8_INT2 :
+            clear_bit(GICR,INT2); 
+            break;
+    }
 }
 
 
 
 
-void EXT_DisableExtInt(EXT_INT ext_int){
-	if(ext_int == EXT_INT_0){
-		clear_bit(GICR_reg,GICR_INT0); // Disable External Interrupt INT0
-	}
-	else if(ext_int == EXT_INT_1){
-		clear_bit(GICR_reg,GICR_INT1); // Disable External Interrupt INT1
-	}
-	else if(ext_int == EXT_INT_2){
-		clear_bit(GICR_reg,GICR_INT2); // Disable External Interrupt INT2
-	}
+
+void EXT_INT_voidCallBackFun(void (*fun)(void),u8 Copy_IntLine){
+    EXT_INT_PtrFuns[Copy_IntLine] = fun;
 }
 
 
 
-void EXT_InitGlobalInterrupts(void){
-	sei();	
+
+void __vector_1(void){ 
+    if(EXT_INT_PtrFuns[EXT_INT_u8_INT0] != NULL)
+        EXT_INT_PtrFuns[EXT_INT_u8_INT0]();
+
+    set_bit(GIFR,INTF0);
 }
+
+void __vector_2(void){
+    if(EXT_INT_PtrFuns[EXT_INT_u8_INT1] != NULL)
+        EXT_INT_PtrFuns[EXT_INT_u8_INT1]();
+        
+    set_bit(GIFR,INTF1);
+}
+
+
+void __vector_3(void){
+    if(EXT_INT_PtrFuns[EXT_INT_u8_INT2] != NULL)
+        EXT_INT_PtrFuns[EXT_INT_u8_INT2]();
+    
+    set_bit(GIFR,INTF2);
+}
+
 

@@ -5,11 +5,13 @@
 
 
 
+	#define lcd_data A 
+	#define lcd_ctr B
+	#define RS 0
+	#define RW 1
+	#define E 2
 
-	// D0 To D7 : PortA
-	// Rs = Pin B0
-	// Rw = Pin B1
-	// Enable = Pin B2
+
 
 
 	void LCD_Init(void);
